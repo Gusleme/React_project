@@ -1,10 +1,10 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import type { GameContextValue, GameState, GameConfig, ThemeId, CellPosition } from '../types/game'
-import { createWord } from '../utils/words'
-import { generateGrid } from '../utils/generateGrid'
-import { getThemeWords, getAllThemes } from '../data/themes'
-import { getLineCells } from '../utils/words'
-import { sameSequence } from '../utils/words'
+import { createWord } from '../utils/palavras'
+import { generateGrid } from '../utils/gerarGrade'
+import { getThemeWords, getAllThemes } from '../data/temas'
+import { getLineCells } from '../utils/palavras'
+import { sameSequence } from '../utils/palavras'
 
 const DEFAULT_CONFIG: GameConfig = {
   gridSize: 10,

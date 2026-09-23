@@ -1,4 +1,4 @@
-import { useGame } from '../store/GameContext'
+import { useGame } from '../store/ContextoJogo'
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60)
@@ -23,13 +23,13 @@ export function EndGameModal({ onRestart, onClose }: EndGameModalProps) {
     >
       <div className="modal-content animate-slide-up">
         <div className="modal-header">
-          <h2 id="victory-title">🎉 Vitória!</h2>
+          <h2 id="victory-title">Vitoria!</h2>
           <button
             className="btn-icon"
             onClick={onClose}
             aria-label="Fechar"
           >
-            ✕
+            &#215;
           </button>
         </div>
         <div className="modal-body text-center">
@@ -55,13 +55,13 @@ export function EndGameModal({ onRestart, onClose }: EndGameModalProps) {
               onClick={onRestart}
               className="btn btn-primary"
             >
-              🔄 Jogar Novamente
+              &#8635; Jogar Novamente
             </button>
             <button
               onClick={onClose}
               className="btn btn-secondary"
             >
-              🎯 Novo Tema
+              &#9679; Novo Tema
             </button>
           </div>
         </div>

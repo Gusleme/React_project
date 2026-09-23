@@ -1,5 +1,5 @@
-import { useGame } from '../store/GameContext'
-import { THEME_LABELS } from '../data/themes'
+import { useGame } from '../store/ContextoJogo'
+import { THEME_LABELS } from '../data/temas'
 
 export function WordList() {
   const { words, foundWordIds, theme } = useGame()
@@ -25,7 +25,7 @@ export function WordList() {
                   className="word-check flex-shrink-0"
                   aria-hidden="true"
                 >
-                  {found ? '✓' : ''}
+                  {found ? '&#x2713;' : ''}
                 </span>
                 <span className="font-base text-sm truncate">{word.text}</span>
               </div>

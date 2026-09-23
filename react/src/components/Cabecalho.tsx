@@ -1,5 +1,5 @@
-import { useGame } from '../store/GameContext'
-import { THEME_LABELS, getAllThemes } from '../data/themes'
+import { useGame } from '../store/ContextoJogo'
+import { THEME_LABELS, getAllThemes } from '../data/temas'
 import { useState, useRef, useEffect } from 'react'
 
 export function Header() {
@@ -21,7 +21,7 @@ export function Header() {
   return (
     <header className="header animate-fade-in">
       <div className="brand">
-        <span className="logo-mark">🔍</span>
+        <span className="logo-mark">CP</span>
         <span className="logo-text">Caça-Palavras</span>
       </div>
 
@@ -35,7 +35,7 @@ export function Header() {
             aria-expanded={isMenuOpen}
             title="Temas"
           >
-            ☰
+            &#9776;
           </button>
           <div
             className={`dropdown ${!isMenuOpen ? 'hidden' : ''}`}
@@ -62,7 +62,7 @@ export function Header() {
           aria-label="Novo jogo"
           title="Novo Jogo"
         >
-          ↻
+          &#8635;
         </button>
       </div>
     </header>

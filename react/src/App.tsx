@@ -1,9 +1,9 @@
-import { GameProvider, useGame } from './store/GameContext'
-import { Header } from './components/Header'
-import { Grid } from './components/Grid'
-import { WordList } from './components/WordList'
-import { EndGameModal } from './components/EndGameModal'
-import { getAllThemes } from './data/themes'
+import { GameProvider, useGame } from './store/ContextoJogo'
+import { Cabecalho } from './components/Cabecalho'
+import { Grade } from './components/Grade'
+import { ListaPalavras } from './components/ListaPalavras'
+import { ModalFimDeJogo } from './components/ModalFimDeJogo'
+import { getAllThemes } from './data/temas'
 
 function GameScreen() {
   const { status, newGame, changeTheme, theme } = useGame()
@@ -17,18 +17,18 @@ function GameScreen() {
 
   return (
     <main className="app-container">
-      <Header />
+      <Cabecalho />
 
       <div className="game-area w-full flex-1 flex overflow-hidden flex-col md:flex-row">
         <section className="card animate-fade-in flex-1 min-w-0 flex flex-col items-center justify-center p-3" aria-label="Área do jogo">
-          <Grid />
+          <Grade />
         </section>
 
-        <WordList />
+        <ListaPalavras />
       </div>
 
       {status === 'won' && (
-        <EndGameModal
+        <ModalFimDeJogo
           onRestart={() => newGame(theme)}
           onClose={handleNextTheme}
         />

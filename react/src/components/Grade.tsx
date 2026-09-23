@@ -1,9 +1,9 @@
-import { useGame } from '../store/GameContext'
-import { Cell } from './Cell'
-import type { CellPosition } from '../types/game'
+import { useGame } from '../store/ContextoJogo'
+import { Celula } from './Celula'
+import type { CelulaPosition } from '../types/game'
 
 export function Grid() {
-  const { grid, placements, foundWordIds, selectedCells, isSelecting, beginSelection, updateSelection, finishSelection } = useGame()
+  const { grid, placements, foundWordIds, selectedCelulas, isSelecting, beginSelection, updateSelection, finishSelection } = useGame()
 
   const foundPositions = new Set<string>()
   placements
@@ -11,13 +11,13 @@ export function Grid() {
     .forEach(p => p.cells.forEach(pos => foundPositions.add(`${pos.row},${pos.column}`)))
 
   const isSelected = (row: number, column: number) =>
-    selectedCells.some(pos => pos.row === row && pos.column === column)
+    selectedCelulas.some(pos => pos.row === row && pos.column === column)
 
-  const handlePointerDown = (position: CellPosition) => {
+  const handlePointerDown = (position: CelulaPosition) => {
     beginSelection(position)
   }
 
-  const handlePointerEnter = (position: CellPosition) => {
+  const handlePointerEnter = (position: CelulaPosition) => {
     if (isSelecting) updateSelection(position)
   }
 
@@ -39,7 +39,7 @@ export function Grid() {
     >
       {grid.map((row, r) =>
         row.map((cell, c) => (
-          <Cell
+          <Celula
             key={cell.id}
             cell={cell}
             isSelected={isSelected(r, c)}
