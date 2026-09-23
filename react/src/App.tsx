@@ -1,18 +1,18 @@
-import { GameProvider, useGame } from './store/ContextoJogo'
+import { FornecedorJogo, usarJogo } from './store/ContextoJogo'
 import { Cabecalho } from './components/Cabecalho'
 import { Grade } from './components/Grade'
 import { ListaPalavras } from './components/ListaPalavras'
 import { ModalFimDeJogo } from './components/ModalFimDeJogo'
-import { getAllThemes } from './data/temas'
+import { obterTodosTemas } from './data/temas'
 
-function GameScreen() {
-  const { status, newGame, changeTheme, theme } = useGame()
-  const themes = getAllThemes()
+function TelaJogo() {
+  const { status, novoJogo, mudarTema, tema } = usarJogo()
+  const temas = obterTodosTemas()
 
-  const handleNextTheme = () => {
-    const currentIndex = themes.indexOf(theme)
-    const nextIndex = (currentIndex + 1) % themes.length
-    changeTheme(themes[nextIndex])
+  const proximoTema = () => {
+    const indiceAtual = temas.indexOf(tema)
+    const proximoIndice = (indiceAtual + 1) % temas.length
+    mudarTema(temas[proximoIndice])
   }
 
   return (
@@ -29,8 +29,8 @@ function GameScreen() {
 
       {status === 'won' && (
         <ModalFimDeJogo
-          onRestart={() => newGame(theme)}
-          onClose={handleNextTheme}
+          aoReiniciar={() => novoJogo(tema)}
+          aoFechar={proximoTema}
         />
       )}
     </main>
@@ -39,8 +39,8 @@ function GameScreen() {
 
 export default function App() {
   return (
-    <GameProvider>
-      <GameScreen />
-    </GameProvider>
+    <FornecedorJogo>
+      <TelaJogo />
+    </FornecedorJogo>
   )
 }

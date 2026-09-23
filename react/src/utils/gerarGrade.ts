@@ -1,148 +1,148 @@
-import type { Word, WordPlacement, GameConfig, WordDirection, CellPosition, GridCell } from '../types/game'
+import type { Palavra, PosicaoPalavra, ConfiguracaoJogo, DirecaoPalavra, PosicaoCelula, CelulaGrade } from '../types/game'
 
-const DIRECTIONS: Record<WordDirection, [number, number]> = {
+const DIRECOES: Record<DirecaoPalavra, [number, number]> = {
   horizontal: [0, 1],
   vertical: [1, 0],
   'diagonal-down': [1, 1],
   'diagonal-up': [-1, 1]
 }
 
-const DIRECTION_KEYS: WordDirection[] = ['horizontal', 'vertical', 'diagonal-down', 'diagonal-up']
+const CHAVES_DIRECAO: DirecaoPalavra[] = ['horizontal', 'vertical', 'diagonal-down', 'diagonal-up']
 
-function randomInt(max: number): number {
-  return Math.floor(Math.random() * max)
+function inteiroAleatorio(maximo: number): number {
+  return Math.floor(Math.random() * maximo)
 }
 
-function shuffle<T>(array: T[]): T[] {
-  const copy = [...array]
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = randomInt(i + 1)
-    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+function embaralhar<T>(vetor: T[]): T[] {
+  const copia = [...vetor]
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = inteiroAleatorio(i + 1)
+    ;[copia[i], copia[j]] = [copia[j], copia[i]]
   }
-  return copy
+  return copia
 }
 
-function canPlace(
-  grid: string[][],
-  word: Word,
-  start: CellPosition,
-  direction: WordDirection,
-  gridSize: number
+function podeColocar(
+  grade: string[][],
+  palavra: Palavra,
+  inicio: PosicaoCelula,
+  direcao: DirecaoPalavra,
+  tamanhoGrade: number
 ): boolean {
-  const [dr, dc] = DIRECTIONS[direction]
-  const len = word.normalized.length
-  const endRow = start.row + dr * (len - 1)
-  const endCol = start.column + dc * (len - 1)
+  const [dr, dc] = DIRECOES[direcao]
+  const tamanho = palavra.normalizado.length
+  const linhaFim = inicio.linha + dr * (tamanho - 1)
+  const colunaFim = inicio.coluna + dc * (tamanho - 1)
 
-  if (endRow < 0 || endRow >= gridSize || endCol < 0 || endCol >= gridSize) return false
+  if (linhaFim < 0 || linhaFim >= tamanhoGrade || colunaFim < 0 || colunaFim >= tamanhoGrade) return false
 
-  for (let i = 0; i < len; i++) {
-    const r = start.row + dr * i
-    const c = start.column + dc * i
-    const existing = grid[r][c]
-    if (existing !== '' && existing !== word.normalized[i]) return false
+  for (let i = 0; i < tamanho; i++) {
+    const l = inicio.linha + dr * i
+    const c = inicio.coluna + dc * i
+    const existente = grade[l][c]
+    if (existente !== '' && existente !== palavra.normalizado[i]) return false
   }
   return true
 }
 
-function placeWord(
-  grid: string[][],
-  word: Word,
-  start: CellPosition,
-  direction: WordDirection
-): CellPosition[] {
-  const [dr, dc] = DIRECTIONS[direction]
-  const len = word.normalized.length
-  const cells: CellPosition[] = []
+function colocarPalavra(
+  grade: string[][],
+  palavra: Palavra,
+  inicio: PosicaoCelula,
+  direcao: DirecaoPalavra
+): PosicaoCelula[] {
+  const [dr, dc] = DIRECOES[direcao]
+  const tamanho = palavra.normalizado.length
+  const celdas: PosicaoCelula[] = []
 
-  for (let i = 0; i < len; i++) {
-    const r = start.row + dr * i
-    const c = start.column + dc * i
-    grid[r][c] = word.normalized[i]
-    cells.push({ row: r, column: c })
+  for (let i = 0; i < tamanho; i++) {
+    const l = inicio.linha + dr * i
+    const c = inicio.coluna + dc * i
+    grade[l][c] = palavra.normalizado[i]
+    celdas.push({ linha: l, coluna: c })
   }
-  return cells
+  return celdas
 }
 
-function findPlacement(
-  grid: string[][],
-  word: Word,
-  gridSize: number
-): { start: CellPosition; direction: WordDirection; cells: CellPosition[] } | null {
-  const directions = shuffle([...DIRECTION_KEYS])
-  const positions: CellPosition[] = []
-  for (let r = 0; r < gridSize; r++) {
-    for (let c = 0; c < gridSize; c++) positions.push({ row: r, column: c })
+function encontrarPosicionamento(
+  grade: string[][],
+  palavra: Palavra,
+  tamanhoGrade: number
+): { inicio: PosicaoCelula; direcao: DirecaoPalavra; celdas: PosicaoCelula[] } | null {
+  const direcoes = embaralhar([...CHAVES_DIRECAO])
+  const posicoes: PosicaoCelula[] = []
+  for (let l = 0; l < tamanhoGrade; l++) {
+    for (let c = 0; c < tamanhoGrade; c++) posicoes.push({ linha: l, coluna: c })
   }
-  shuffle(positions)
+  embaralhar(posicoes)
 
-  for (const direction of directions) {
-    for (const start of positions) {
-      if (canPlace(grid, word, start, direction, gridSize)) {
-        const cells = placeWord(grid, word, start, direction)
-        return { start, direction, cells }
+  for (const direcao of direcoes) {
+    for (const inicio of posicoes) {
+      if (podeColocar(grade, palavra, inicio, direcao, tamanhoGrade)) {
+        const celdas = colocarPalavra(grade, palavra, inicio, direcao)
+        return { inicio, direcao, celdas }
       }
     }
   }
   return null
 }
 
-function fillEmpty(grid: string[][], gridSize: number): void {
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  for (let r = 0; r < gridSize; r++) {
-    for (let c = 0; c < gridSize; c++) {
-      if (grid[r][c] === '') {
-        grid[r][c] = letters[randomInt(letters.length)]
+function preencherVazio(grade: string[][], tamanhoGrade: number): void {
+  const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  for (let l = 0; l < tamanhoGrade; l++) {
+    for (let c = 0; c < tamanhoGrade; c++) {
+      if (grade[l][c] === '') {
+        grade[l][c] = letras[inteiroAleatorio(letras.length)]
       }
     }
   }
 }
 
-function gridToCells(grid: string[][], gridSize: number): GridCell[][] {
-  const result: GridCell[][] = []
-  for (let r = 0; r < gridSize; r++) {
-    const row: GridCell[] = []
-    for (let c = 0; c < gridSize; c++) {
-      row.push({
-        id: `${r},${c}`,
-        letter: grid[r][c],
-        position: { row: r, column: c }
+function gradeParaCeldas(grade: string[][], tamanhoGrade: number): CelulaGrade[][] {
+  const resultado: CelulaGrade[][] = []
+  for (let l = 0; l < tamanhoGrade; l++) {
+    const linha: CelulaGrade[] = []
+    for (let c = 0; c < tamanhoGrade; c++) {
+      linha.push({
+        id: `${l},${c}`,
+        letra: grade[l][c],
+        posicao: { linha: l, coluna: c }
       })
     }
-    result.push(row)
+    resultado.push(linha)
   }
-  return result
+  return resultado
 }
 
-export function generateGrid(words: Word[], config: GameConfig): { grid: GridCell[][]; placements: WordPlacement[] } {
-  const maxAttempts = 100
-  const sortedWords = [...words].sort((a, b) => b.normalized.length - a.normalized.length)
+export function gerarGrade(palavras: Palavra[], configuracao: ConfiguracaoJogo): { grade: CelulaGrade[][]; posicionamentos: PosicaoPalavra[] } {
+  const maxTentativas = 100
+  const palavrasOrdenadas = [...palavras].sort((a, b) => b.normalizado.length - a.normalizado.length)
 
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const emptyGrid = Array.from({ length: config.gridSize }, () =>
-      Array.from({ length: config.gridSize }, () => '')
+  for (let tentativa = 0; tentativa < maxTentativas; tentativa++) {
+    const gradeVazia = Array.from({ length: configuracao.tamanhoGrade }, () =>
+      Array.from({ length: configuracao.tamanhoGrade }, () => '')
     )
-    const placements: WordPlacement[] = []
-    let success = true
+    const posicionamentos: PosicaoPalavra[] = []
+    let sucesso = true
 
-    for (const word of sortedWords) {
-      const placement = findPlacement(emptyGrid, word, config.gridSize)
-      if (!placement) {
-        success = false
+    for (const palavra of palavrasOrdenadas) {
+      const posicionamento = encontrarPosicionamento(gradeVazia, palavra, configuracao.tamanhoGrade)
+      if (!posicionamento) {
+        sucesso = false
         break
       }
-      placements.push({
-        word,
-        direction: placement.direction,
-        start: placement.start,
-        cells: placement.cells
+      posicionamentos.push({
+        palavra,
+        direcao: posicionamento.direcao,
+        inicio: posicionamento.inicio,
+        celdas: posicionamento.celdas
       })
     }
 
-    if (success) {
-      fillEmpty(emptyGrid, config.gridSize)
-      const grid = gridToCells(emptyGrid, config.gridSize)
-      return { grid, placements }
+    if (sucesso) {
+      preencherVazio(gradeVazia, configuracao.tamanhoGrade)
+      const grade = gradeParaCeldas(gradeVazia, configuracao.tamanhoGrade)
+      return { grade, posicionamentos }
     }
   }
 

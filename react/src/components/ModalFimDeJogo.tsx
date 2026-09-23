@@ -1,18 +1,18 @@
-import { useGame } from '../store/ContextoJogo'
+import { usarJogo } from '../store/ContextoJogo'
 
-function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60)
-  const s = seconds % 60
+function formatarTempo(segundos: number): string {
+  const m = Math.floor(segundos / 60)
+  const s = segundos % 60
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
 }
 
-interface EndGameModalProps {
-  onRestart: () => void
-  onClose: () => void
+interface PropsModalFimDeJogo {
+  aoReiniciar: () => void
+  aoFechar: () => void
 }
 
-export function EndGameModal({ onRestart, onClose }: EndGameModalProps) {
-  const { elapsedSeconds, words, foundWordIds } = useGame()
+export function ModalFimDeJogo({ aoReiniciar, aoFechar }: PropsModalFimDeJogo) {
+  const { segundosDecorridos, palavras, idsPalavrasEncontradas } = usarJogo()
 
   return (
     <div
@@ -26,7 +26,7 @@ export function EndGameModal({ onRestart, onClose }: EndGameModalProps) {
           <h2 id="victory-title">Vitoria!</h2>
           <button
             className="btn-icon"
-            onClick={onClose}
+            onClick={aoFechar}
             aria-label="Fechar"
           >
             &#215;
@@ -37,28 +37,28 @@ export function EndGameModal({ onRestart, onClose }: EndGameModalProps) {
 
           <div className="grid grid-cols-3 gap-3 mb-6 p-4 rounded-lg">
             <div style={{ backgroundColor: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>
-              <p className="font-extrabold text-2xl">{formatTime(elapsedSeconds)}</p>
+              <p className="font-extrabold text-2xl">{formatarTempo(segundosDecorridos)}</p>
               <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Tempo</p>
             </div>
             <div style={{ backgroundColor: 'var(--color-correct)', color: 'var(--color-correct-text)' }}>
-              <p className="font-extrabold text-2xl">{foundWordIds.length}</p>
+              <p className="font-extrabold text-2xl">{idsPalavrasEncontradas.length}</p>
               <p className="text-xs opacity-90">Encontradas</p>
             </div>
             <div style={{ backgroundColor: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>
-              <p className="font-extrabold text-2xl">{words.length}</p>
+              <p className="font-extrabold text-2xl">{palavras.length}</p>
               <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Total</p>
             </div>
           </div>
 
           <div className="btn-row">
             <button
-              onClick={onRestart}
+              onClick={aoReiniciar}
               className="btn btn-primary"
             >
               &#8635; Jogar Novamente
             </button>
             <button
-              onClick={onClose}
+              onClick={aoFechar}
               className="btn btn-secondary"
             >
               &#9679; Novo Tema

@@ -1,51 +1,50 @@
-import { useGame } from '../store/ContextoJogo'
+import { usarJogo } from '../store/ContextoJogo'
 import { Celula } from './Celula'
-import type { CelulaPosition } from '../types/game'
 
-export function Grid() {
-  const { grid, placements, foundWordIds, selectedCelulas, isSelecting, beginSelection, updateSelection, finishSelection } = useGame()
+export function Grade() {
+  const { grade, posicionamentos, idsPalavrasEncontradas, celdasSelecionadas, selecionando, iniciarSelecao, atualizarSelecao, finalizarSelecao } = usarJogo()
 
-  const foundPositions = new Set<string>()
-  placements
-    .filter(p => foundWordIds.includes(p.word.id))
-    .forEach(p => p.cells.forEach(pos => foundPositions.add(`${pos.row},${pos.column}`)))
+  const posicoesEncontradas = new Set<string>()
+  posicionamentos
+    .filter(p => idsPalavrasEncontradas.includes(p.palavra.id))
+    .forEach(p => p.celdas.forEach(pos => posicoesEncontradas.add(`${pos.linha},${pos.coluna}`)))
 
-  const isSelected = (row: number, column: number) =>
-    selectedCelulas.some(pos => pos.row === row && pos.column === column)
+  const estaSelecionada = (linha: number, coluna: number) =>
+    celdasSelecionadas.some(pos => pos.linha === linha && pos.coluna === coluna)
 
-  const handlePointerDown = (position: CelulaPosition) => {
-    beginSelection(position)
+  const aoPressionar = (posicao: PosicaoCelula) => {
+    iniciarSelecao(posicao)
   }
 
-  const handlePointerEnter = (position: CelulaPosition) => {
-    if (isSelecting) updateSelection(position)
+  const aoEntrar = (posicao: PosicaoCelula) => {
+    if (selecionando) atualizarSelecao(posicao)
   }
 
-  const handlePointerUp = () => {
-    finishSelection()
+  const aoSoltar = () => {
+    finalizarSelecao()
   }
 
-  const handlePointerLeave = () => {
+  const aoSair = () => {
   }
 
   return (
     <div
       className="grid gap-1.5"
-      style={{ gridTemplateColumns: `repeat(${grid[0]?.length ?? 10}, 1fr)` }}
+      style={{ gridTemplateColumns: `repeat(${grade[0]?.length ?? 10}, 1fr)` }}
       role="grid"
       aria-label="Grade do caça-palavras"
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerLeave}
+      onPointerUp={aoSoltar}
+      onPointerLeave={aoSair}
     >
-      {grid.map((row, r) =>
-        row.map((cell, c) => (
+      {grade.map((linha, l) =>
+        linha.map((celula, c) => (
           <Celula
-            key={cell.id}
-            cell={cell}
-            isSelected={isSelected(r, c)}
-            isFound={foundPositions.has(cell.id)}
-            onPointerDown={handlePointerDown}
-            onPointerEnter={handlePointerEnter}
+            key={celula.id}
+            celula={celula}
+            estaSelecionada={estaSelecionada(l, c)}
+            estaEncontrada={posicoesEncontradas.has(celula.id)}
+            aoPressionar={aoPressionar}
+            aoEntrar={aoEntrar}
           />
         ))
       )}

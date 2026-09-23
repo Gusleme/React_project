@@ -1,31 +1,31 @@
-import type { GridCell } from '../types/game'
+import type { CelulaGrade } from '../types/game'
 
-interface CellProps {
-  cell: GridCell
-  isSelected: boolean
-  isFound: boolean
-  onPointerDown: (position: { row: number; column: number }) => void
-  onPointerEnter: (position: { row: number; column: number }) => void
+interface PropsCelula {
+  celula: CelulaGrade
+  estaSelecionada: boolean
+  estaEncontrada: boolean
+  aoPressionar: (posicao: { linha: number; coluna: number }) => void
+  aoEntrar: (posicao: { linha: number; coluna: number }) => void
 }
 
-export function Cell({ cell, isSelected, isFound, onPointerDown, onPointerEnter }: CellProps) {
-  const className = [
+export function Celula({ celula, estaSelecionada, estaEncontrada, aoPressionar, aoEntrar }: PropsCelula) {
+  const classe = [
     'grid-cell',
-    isFound && 'found',
-    isSelected && !isFound && 'selected'
+    estaEncontrada && 'found',
+    estaSelecionada && !estaEncontrada && 'selected'
   ].filter(Boolean).join(' ')
 
   return (
     <button
       type="button"
-      className={className}
-      onPointerDown={() => onPointerDown(cell.position)}
-      onPointerEnter={() => onPointerEnter(cell.position)}
-      aria-label={`Letra ${cell.letter}, linha ${cell.position.row + 1}, coluna ${cell.position.column + 1}`}
-      aria-selected={isSelected}
-      aria-pressed={isFound}
+      className={classe}
+      onPointerDown={() => aoPressionar(celula.posicao)}
+      onPointerEnter={() => aoEntrar(celula.posicao)}
+      aria-label={`Letra ${celula.letra}, linha ${celula.posicao.linha + 1}, coluna ${celula.posicao.coluna + 1}`}
+      aria-selected={estaSelecionada}
+      aria-pressed={estaEncontrada}
     >
-      {cell.letter}
+      {celula.letra}
     </button>
   )
 }

@@ -1,33 +1,33 @@
-import { useGame } from '../store/ContextoJogo'
-import { THEME_LABELS } from '../data/temas'
+import { usarJogo } from '../store/ContextoJogo'
+import { ROTULO_TEMAS } from '../data/temas'
 
-export function WordList() {
-  const { words, foundWordIds, theme } = useGame()
+export function ListaPalavras() {
+  const { palavras, idsPalavrasEncontradas, tema } = usarJogo()
 
   return (
     <aside className="w-full md:w-72 lg:w-80 flex-shrink-0">
       <div className="card animate-slide-up">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-extrabold tracking-wide text-lg">
-            Palavras ({foundWordIds.length}/{words.length})
+            Palavras ({idsPalavrasEncontradas.length}/{palavras.length})
           </h2>
-          <span className="badge badge-fallback">{THEME_LABELS[theme]}</span>
+          <span className="badge badge-fallback">{ROTULO_TEMAS[tema]}</span>
         </div>
         <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-          {words.map(word => {
-            const found = foundWordIds.includes(word.id)
+          {palavras.map(palavra => {
+            const encontrada = idsPalavrasEncontradas.includes(palavra.id)
             return (
               <div
-                key={word.id}
-                className={`word-item ${found ? 'found' : ''}`}
+                key={palavra.id}
+                className={`word-item ${encontrada ? 'found' : ''}`}
               >
                 <span
                   className="word-check flex-shrink-0"
                   aria-hidden="true"
                 >
-                  {found ? '&#x2713;' : ''}
+                  {encontrada ? '&#x2713;' : ''}
                 </span>
-                <span className="font-base text-sm truncate">{word.text}</span>
+                <span className="font-base text-sm truncate">{palavra.texto}</span>
               </div>
             )
           })}

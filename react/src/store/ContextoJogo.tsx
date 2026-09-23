@@ -1,57 +1,57 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
-import type { GameContextValue, GameState, GameConfig, ThemeId, CellPosition } from '../types/game'
-import { createWord } from '../utils/palavras'
-import { generateGrid } from '../utils/gerarGrade'
-import { getThemeWords, getAllThemes } from '../data/temas'
-import { getLineCells } from '../utils/palavras'
-import { sameSequence } from '../utils/palavras'
+import type { ValorContextoJogo, EstadoJogo, ConfiguracaoJogo, IdTema, PosicaoCelula } from '../types/game'
+import { criarPalavra } from '../utils/palavras'
+import { gerarGrade } from '../utils/gerarGrade'
+import { obterPalavrasTema, obterTodosTemas } from '../data/temas'
+import { obterCeldasLinha } from '../utils/palavras'
+import { mesmaSequencia } from '../utils/palavras'
 
-const DEFAULT_CONFIG: GameConfig = {
-  gridSize: 10,
-  wordsPerGame: 8,
-  defaultTheme: 'animais',
-  themes: getAllThemes()
+const CONFIGURACAO_PADRAO: ConfiguracaoJogo = {
+  tamanhoGrade: 10,
+  palavrasPorJogo: 8,
+  temaPadrao: 'animais',
+  temas: obterTodosTemas()
 }
 
-function loadWordsForTheme(theme: ThemeId, limit: number): string[] {
-  const words = getThemeWords(theme)
-  const seen = new Set<string>()
-  return words
-    .map(w => w.trim().toUpperCase())
-    .filter(w => {
-      if (seen.has(w)) return false
-      seen.add(w)
+function carregarPalavrasParaTema(tema: IdTema, limite: number): string[] {
+  const palavras = obterPalavrasTema(tema)
+  const visto = new Set<string>()
+  return palavras
+    .map(p => p.trim().toUpperCase())
+    .filter(p => {
+      if (visto.has(p)) return false
+      visto.add(p)
       return true
     })
-    .slice(0, limit)
+    .slice(0, limite)
 }
 
-function buildState(theme: ThemeId): GameState {
-  const words = loadWordsForTheme(theme, DEFAULT_CONFIG.wordsPerGame).map((text, index) => createWord(text, theme, index))
-  const { grid, placements } = generateGrid(words, DEFAULT_CONFIG)
+function construirEstado(tema: IdTema): EstadoJogo {
+  const palavras = carregarPalavrasParaTema(tema, CONFIGURACAO_PADRAO.palavrasPorJogo).map((texto, indice) => criarPalavra(texto, tema, indice))
+  const { grade, posicionamentos } = gerarGrade(palavras, CONFIGURACAO_PADRAO)
 
   return {
     status: 'playing',
-    config: DEFAULT_CONFIG,
-    theme,
-    words,
-    grid,
-    placements,
-    foundWordIds: [],
-    selectedCells: [],
-    selectionAnchor: null,
-    isSelecting: false,
-    elapsedSeconds: 0
+    configuracao: CONFIGURACAO_PADRAO,
+    tema,
+    palavras,
+    grade,
+    posicionamentos,
+    idsPalavrasEncontradas: [],
+    celdasSelecionadas: [],
+    ancoraSelecao: null,
+    selecionando: false,
+    segundosDecorridos: 0
   }
 }
 
-const GameContext = createContext<GameContextValue | null>(null)
+const ContextoJogo = createContext<ValorContextoJogo | null>(null)
 
-export function GameProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<GameState>(() => buildState(DEFAULT_CONFIG.defaultTheme))
+export function FornecedorJogo({ filhos }: { filhos: React.ReactNode }) {
+  const [estado, definirEstado] = useState<EstadoJogo>(() => construirEstado(CONFIGURACAO_PADRAO.temaPadrao))
 
   const tick = useCallback(() => {
-    setState(s => ({ ...s, elapsedSeconds: s.elapsedSeconds + 1 }))
+    definirEstado(e => ({ ...e, segundosDecorridos: e.segundosDecorridos + 1 }))
   }, [])
 
   useEffect(() => {
@@ -59,77 +59,78 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return () => window.clearInterval(id)
   }, [tick])
 
-  const initGame = useCallback((nextTheme: ThemeId) => {
-    setState(buildState(nextTheme))
+  const iniciarJogo = useCallback((proximoTema: IdTema) => {
+    definirEstado(construirEstado(proximoTema))
   }, [])
 
-  const newGame = useCallback((theme?: ThemeId) => {
-    initGame(theme ?? state.theme)
-  }, [initGame, state.theme])
+  const novoJogo = useCallback((tema?: IdTema) => {
+    iniciarJogo(tema ?? estado.tema)
+  }, [iniciarJogo, estado.tema])
 
-  const changeTheme = useCallback((theme: ThemeId) => {
-    initGame(theme)
-  }, [initGame])
+  const mudarTema = useCallback((tema: IdTema) => {
+    iniciarJogo(tema)
+  }, [iniciarJogo])
 
-  const beginSelection = useCallback((position: CellPosition) => {
-    setState(s => {
-      if (s.status !== 'playing') return s
-      if (!s.selectionAnchor) {
-        return { ...s, selectionAnchor: position, selectedCells: [position], isSelecting: true }
+  const iniciarSelecao = useCallback((posicao: PosicaoCelula) => {
+    definirEstado(e => {
+      if (e.status !== 'playing') return e
+      if (!e.ancoraSelecao) {
+        return { ...e, ancoraSelecao: posicao, celdasSelecionadas: [posicao], selecionando: true }
       }
-      const cells = getLineCells(s.selectionAnchor, position)
-      return { ...s, selectedCells: cells ?? [position], isSelecting: true }
+      const celdas = obterCeldasLinha(e.ancoraSelecao, posicao)
+      return { ...e, celdasSelecionadas: celdas ?? [posicao], selecionando: true }
     })
   }, [])
 
-  const updateSelection = useCallback((position: CellPosition) => {
-    setState(s => {
-      if (s.status !== 'playing' || !s.selectionAnchor || !s.isSelecting) return s
-      const cells = getLineCells(s.selectionAnchor, position)
-      return { ...s, selectedCells: cells ?? [s.selectionAnchor] }
+  const atualizarSelecao = useCallback((posicao: PosicaoCelula) => {
+    definirEstado(e => {
+      if (e.status !== 'playing' || !e.ancoraSelecao || !e.selecionando) return e
+      const celdas = obterCeldasLinha(e.ancoraSelecao, posicao)
+      return { ...e, celdasSelecionadas: celdas ?? [e.ancoraSelecao] }
     })
   }, [])
 
-  const finishSelection = useCallback(() => {
-    setState(s => {
-      if (s.status !== 'playing' || s.selectedCells.length < 2) {
-        return { ...s, selectedCells: [], selectionAnchor: null, isSelecting: false }
+  const finalizarSelecao = useCallback(() => {
+    definirEstado(e => {
+      if (e.status !== 'playing' || e.celdasSelecionadas.length < 2) {
+        return { ...e, celdasSelecionadas: [], ancoraSelecao: null, selecionando: false }
       }
-      const selected = s.selectedCells
-      const match = s.placements.find(p =>
-        sameSequence(p.cells, selected) || sameSequence([...p.cells].reverse(), selected)
+      const selecionadas = e.celdasSelecionadas
+      const correspondencia = e.posicionamentos.find(p =>
+        mesmaSequencia(p.celdas, selecionadas) || mesmaSequencia([...p.celdas].reverse(), selecionadas)
       )
-      if (match && !s.foundWordIds.includes(match.word.id)) {
-        const nextFound = [...s.foundWordIds, match.word.id]
-        const won = nextFound.length === s.words.length
+      if (correspondencia && !e.idsPalavrasEncontradas.includes(correspondencia.palavra.id)) {
+        const proximasEncontradas = [...e.idsPalavrasEncontradas, correspondencia.palavra.id]
+        const vencido = proximasEncontradas.length === e.palavras.length
         return {
-          ...s,
-          foundWordIds: nextFound,
-          selectedCells: [],
-          selectionAnchor: null,
-          isSelecting: false,
-          status: won ? 'won' : 'playing'
+          ...e,
+          idsPalavrasEncontradas: proximasEncontradas,
+          celdasSelecionadas: [],
+          ancoraSelecao: null,
+          selecionando: false,
+          status: vencido ? 'won' : 'playing'
         }
       }
-      return { ...s, selectedCells: [], selectionAnchor: null, isSelecting: false }
+      return { ...e, celdasSelecionadas: [], ancoraSelecao: null, selecionando: false }
     })
   }, [])
 
-  const value: GameContextValue = {
-    ...state,
+  const valor: ValorContextoJogo = {
+    ...estado,
     tick,
-    newGame,
-    changeTheme,
-    beginSelection,
-    updateSelection,
-    finishSelection
+    novoJogo,
+    mudarTema,
+    iniciarSelecao,
+    atualizarSelecao,
+    finalizarSelecao
   }
 
-  return <GameContext.Provider value={value}>{children}</GameContext.Provider>
+  return <ContextoJogo.Provider value={valor}>{filhos}</ContextoJogo.Provider>
 }
 
-export function useGame(): GameContextValue {
-  const context = useContext(GameContext)
-  if (!context) throw new Error('useGame deve ser usado dentro de GameProvider')
-  return context
+/* eslint-disable react-hooks/rules-of-hooks */
+export function usarJogo(): ValorContextoJogo {
+  const contexto = useContext(ContextoJogo)
+  if (!contexto) throw new Error('usarJogo deve ser usado dentro de FornecedorJogo')
+  return contexto
 }

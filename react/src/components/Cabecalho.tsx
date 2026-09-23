@@ -1,21 +1,21 @@
-import { useGame } from '../store/ContextoJogo'
-import { THEME_LABELS, getAllThemes } from '../data/temas'
+import { usarJogo } from '../store/ContextoJogo'
+import { ROTULO_TEMAS, obterTodosTemas } from '../data/temas'
 import { useState, useRef, useEffect } from 'react'
 
-export function Header() {
-  const { status, theme, newGame, changeTheme } = useGame()
-  const themes = getAllThemes()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
+export function Cabecalho() {
+  const { status, tema, novoJogo, mudarTema } = usarJogo()
+  const temas = obterTodosTemas()
+  const [menuAberto, definirMenuAberto] = useState(false)
+  const referenciaMenu = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false)
+    const clicarFora = (evento: MouseEvent) => {
+      if (referenciaMenu.current && !referenciaMenu.current.contains(evento.target as Node)) {
+        definirMenuAberto(false)
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('mousedown', clicarFora)
+    return () => document.removeEventListener('mousedown', clicarFora)
   }, [])
 
   return (
@@ -26,37 +26,37 @@ export function Header() {
       </div>
 
       <div className="header-actions">
-        <div className="menu-container" ref={menuRef}>
+        <div className="menu-container" ref={referenciaMenu}>
           <button
             className="btn-icon"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={() => definirMenuAberto(!menuAberto)}
             aria-label="Selecionar tema"
             aria-haspopup="true"
-            aria-expanded={isMenuOpen}
+            aria-expanded={menuAberto}
             title="Temas"
           >
             &#9776;
           </button>
           <div
-            className={`dropdown ${!isMenuOpen ? 'hidden' : ''}`}
+            className={`dropdown ${!menuAberto ? 'hidden' : ''}`}
             role="menu"
             aria-label="Selecionar tema"
           >
-            {themes.map(t => (
+            {temas.map(t => (
               <button
                 key={t}
-                className={`dropdown-item ${theme === t ? 'active' : ''}`}
+                className={`dropdown-item ${tema === t ? 'active' : ''}`}
                 role="menuitem"
-                onClick={() => { changeTheme(t); setIsMenuOpen(false); }}
+                onClick={() => { mudarTema(t); definirMenuAberto(false); }}
               >
-                {THEME_LABELS[t]}
+                {ROTULO_TEMAS[t]}
               </button>
             ))}
           </div>
         </div>
 
         <button
-          onClick={() => newGame(theme)}
+          onClick={() => novoJogo(tema)}
           disabled={status !== 'playing'}
           className="btn-icon"
           aria-label="Novo jogo"

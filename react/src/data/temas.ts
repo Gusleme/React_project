@@ -1,6 +1,6 @@
-import type { ThemeId } from '../types/game'
+import type { IdTema } from '../types/game'
 
-export const THEME_LABELS: Record<ThemeId, string> = {
+export const ROTULO_TEMAS: Record<IdTema, string> = {
   animais: 'Animais',
   frutas: 'Frutas',
   cores: 'Cores',
@@ -10,7 +10,7 @@ export const THEME_LABELS: Record<ThemeId, string> = {
   profissoes: 'Profissões'
 }
 
-const LOCAL_THEME_WORDS: Record<ThemeId, readonly string[]> = {
+const PALAVRAS_TEMA_LOCAIS: Record<IdTema, readonly string[]> = {
   animais: [
     'CACHORRO', 'GATO', 'ELEFANTE', 'GIRAFA', 'LEAO', 'TIGRE', 'ZEBRA', 'MACACO',
     'CAVALO', 'VACA', 'OVELHA', 'PORCO', 'GALINHA', 'PATO', 'PEIXE', 'TARTARUGA',
@@ -48,10 +48,10 @@ const LOCAL_THEME_WORDS: Record<ThemeId, readonly string[]> = {
   ]
 }
 
-export function getThemeWords(theme: ThemeId): readonly string[] {
-  return LOCAL_THEME_WORDS[theme]
+export function obterPalavrasTema(tema: IdTema): readonly string[] {
+  return PALAVRAS_TEMA_LOCAIS[tema]
 }
 
-export function getAllThemes(): readonly ThemeId[] {
-  return Object.keys(LOCAL_THEME_WORDS) as ThemeId[]
+export function obterTodosTemas(): readonly IdTema[] {
+  return Object.keys(PALAVRAS_TEMA_LOCAIS) as IdTema[]
 }

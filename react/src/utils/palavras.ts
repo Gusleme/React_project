@@ -1,55 +1,55 @@
-export function normalizeWord(value: string): string {
-  return value
+export function normalizarPalavra(valor: string): string {
+  return valor
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toUpperCase()
     .replace(/[^A-Z]/g, '')
 }
 
-export function createWord(text: string, category: string, index: number): import('../types/game').Word {
-  const normalized = normalizeWord(text)
+export function criarPalavra(texto: string, categoria: string, indice: number): import('../types/game').Palavra {
+  const normalizado = normalizarPalavra(texto)
   return {
-    id: `${category}-${index}-${normalized}`,
-    text,
-    normalized,
-    category: category as import('../types/game').ThemeId
+    id: `${categoria}-${indice}-${normalizado}`,
+    texto,
+    normalizado,
+    categoria: categoria as import('../types/game').IdTema
   }
 }
 
-export function positionKey(pos: import('../types/game').CellPosition): string {
-  return `${pos.row},${pos.column}`
+export function chavePosicao(posicao: import('../types/game').PosicaoCelula): string {
+  return `${posicao.linha},${posicao.coluna}`
 }
 
-export function arePositionsEqual(a: import('../types/game').CellPosition, b: import('../types/game').CellPosition): boolean {
-  return a.row === b.row && a.column === b.column
+export function saoPosicoesIguais(a: import('../types/game').PosicaoCelula, b: import('../types/game').PosicaoCelula): boolean {
+  return a.linha === b.linha && a.coluna === b.coluna
 }
 
-export function getLineCells(
-  start: import('../types/game').CellPosition,
-  end: import('../types/game').CellPosition
-): import('../types/game').CellPosition[] | null {
-  const dr = Math.sign(end.row - start.row)
-  const dc = Math.sign(end.column - start.column)
-  const rowDiff = Math.abs(end.row - start.row)
-  const colDiff = Math.abs(end.column - start.column)
+export function obterCeldasLinha(
+  inicio: import('../types/game').PosicaoCelula,
+  fim: import('../types/game').PosicaoCelula
+): import('../types/game').PosicaoCelula[] | null {
+  const dr = Math.sign(fim.linha - inicio.linha)
+  const dc = Math.sign(fim.coluna - inicio.coluna)
+  const diferencaLinha = Math.abs(fim.linha - inicio.linha)
+  const diferencaColuna = Math.abs(fim.coluna - inicio.coluna)
 
-  const isStraight = rowDiff === 0 || colDiff === 0 || rowDiff === colDiff
-  if (!isStraight) return null
+  const reta = diferencaLinha === 0 || diferencaColuna === 0 || diferencaLinha === diferencaColuna
+  if (!reta) return null
 
-  const steps = Math.max(rowDiff, colDiff)
-  const cells: import('../types/game').CellPosition[] = []
+  const passos = Math.max(diferencaLinha, diferencaColuna)
+  const celdas: import('../types/game').PosicaoCelula[] = []
 
-  for (let i = 0; i <= steps; i++) {
-    cells.push({ row: start.row + dr * i, column: start.column + dc * i })
+  for (let i = 0; i <= passos; i++) {
+    celdas.push({ linha: inicio.linha + dr * i, coluna: inicio.coluna + dc * i })
   }
 
-  return cells
+  return celdas
 }
 
-export function sameSequence(
-  a: import('../types/game').CellPosition[],
-  b: import('../types/game').CellPosition[]
+export function mesmaSequencia(
+  a: import('../types/game').PosicaoCelula[],
+  b: import('../types/game').PosicaoCelula[]
 ): boolean {
   if (a.length !== b.length) return false
-  return a.every((pos, i) => arePositionsEqual(pos, b[i]))
+  return a.every((posicao, i) => saoPosicoesIguais(posicao, b[i]))
 }
